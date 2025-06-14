@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
             <Link to="/" className="flex items-center space-x-2 mb-4">
               <Ticket className="h-6 w-6 text-primary-600" />
               <span className="text-lg font-bold bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent">
-                BlockTix
+                ShowRunner
               </span>
             </Link>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 max-w-md">
@@ -89,7 +89,7 @@ const Footer: React.FC = () => {
 
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
           <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            &copy; {new Date().getFullYear()} BlockTix. All rights reserved.
+            &copy; {new Date().getFullYear()} ShowRunner. All rights reserved.
           </p>
         </div>
       </div>

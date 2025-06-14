@@ -15,7 +15,7 @@ const EventsPage: React.FC = () => {
 
   // Update page title on component mount
   useEffect(() => {
-    document.title = 'Events - BlockTix';
+    document.title = 'Events - ShowRunner';
   }, []);
 
   // Fetch events

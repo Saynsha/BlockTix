@@ -4,10 +4,13 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, doc, getDoc, addDoc, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, getDoc, addDoc } from 'firebase/firestore';
 
 // Load environment variables
 dotenv.config();
+
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -19,16 +22,15 @@ const firebaseConfig = {
   appId: process.env.FIREBASE_APP_ID,
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // Create Express app
-const app = express();
-const PORT = process.env.PORT || 3000;
+const server = express();
 
 // Middleware
-app.use(express.json());
-app.use(cors());
+server.use(cors());
+server.use(express.json());
 
 // Rate limiting
 const limiter = rateLimit({
@@ -37,7 +39,7 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use(limiter);
+server.use(limiter);
 
 // Custom error handler
 interface ApiError extends Error {
@@ -83,7 +85,7 @@ const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
 // Routes
 
 // Get all events
-app.get('/events', async (req: Request, res: Response, next: NextFunction) => {
+server.get('/events', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const eventsCollection = collection(db, 'events');
     const eventsSnapshot = await getDocs(eventsCollection);
@@ -99,7 +101,7 @@ app.get('/events', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // Get event by ID
-app.get('/events/:id', async (req: Request, res: Response, next: NextFunction) => {
+server.get('/events/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const eventDoc = doc(db, 'events', id);
@@ -121,7 +123,7 @@ app.get('/events/:id', async (req: Request, res: Response, next: NextFunction) =
 });
 
 // User signup
-app.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
+server.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, email, password } = req.body;
     
@@ -162,7 +164,7 @@ app.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // Submit contact form
-app.post('/contact', async (req: Request, res: Response, next: NextFunction) => {
+server.post('/contact', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, email, subject, message } = req.body;
     
@@ -188,16 +190,27 @@ app.post('/contact', async (req: Request, res: Response, next: NextFunction) => 
 });
 
 // Protected route example
-app.get('/profile', authenticate, (req: AuthRequest, res: Response) => {
+server.get('/profile', authenticate, (req: AuthRequest, res: Response) => {
   res.json({ user: req.user });
 });
 
 // Apply error handler
-app.use(errorHandler);
+server.use(errorHandler);
+
+// Add type for error parameter
+server.use((err: Error, req: Request, res: Response) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+// Add type for error handler
+interface ErrorHandler {
+  (err: Error, req: Request, res: Response): void;
+}
 
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-export default app;
+export default server;

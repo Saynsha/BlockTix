@@ -13,7 +13,7 @@ const ContactPage: React.FC = () => {
 
   // Update page title
   useEffect(() => {
-    document.title = 'Contact Us - BlockTix';
+    document.title = 'Contact Us - ShowRunner';
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

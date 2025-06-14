@@ -63,7 +63,7 @@ const Navbar: React.FC = () => {
             <Link to="/" className="flex items-center space-x-2">
               <Ticket className="h-8 w-8 text-primary-600" />
               <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent">
-                BlockTix
+                ShowRunner
               </span>
             </Link>
 

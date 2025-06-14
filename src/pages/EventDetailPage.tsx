@@ -30,9 +30,9 @@ const EventDetailPage: React.FC = () => {
   // Update page title when event loads
   useEffect(() => {
     if (event) {
-      document.title = `${event.title} - BlockTix`;
+      document.title = `${event.title} - ShowRunner`;
     } else {
-      document.title = 'Event Details - BlockTix';
+      document.title = 'Event Details - ShowRunner';
     }
   }, [event]);
 

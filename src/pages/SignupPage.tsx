@@ -19,7 +19,7 @@ const SignupPage: React.FC = () => {
 
   // Update page title
   useEffect(() => {
-    document.title = 'Sign Up - BlockTix';
+    document.title = 'Sign Up - ShowRunner';
   }, []);
 
   const validateForm = () => {
@@ -69,7 +69,7 @@ const SignupPage: React.FC = () => {
               Create an Account
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Join BlockTix to purchase and manage event tickets
+              Join ShowRunner to purchase and manage event tickets
             </p>
           </div>
           

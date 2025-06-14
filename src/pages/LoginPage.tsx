@@ -17,7 +17,7 @@ const LoginPage: React.FC = () => {
 
   // Update page title
   useEffect(() => {
-    document.title = 'Login - BlockTix';
+    document.title = 'Login - ShowRunner';
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,7 +54,7 @@ const LoginPage: React.FC = () => {
               Welcome Back
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Sign in to your BlockTix account
+              Sign in to your ShowRunner account
             </p>
           </div>
           

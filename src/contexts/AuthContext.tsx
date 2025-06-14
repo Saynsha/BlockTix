@@ -1,27 +1,38 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   getAuth, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
-  signOut, 
+  signOut as firebaseSignOut,
   onAuthStateChanged,
-  User as FirebaseUser,
-  updateProfile
+  User as FirebaseUser
 } from 'firebase/auth';
 import { app } from '../firebase/config';
+import { AUTH_ERROR_MESSAGES } from '../constants/auth';
+
+interface User {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+}
 
 interface AuthContextType {
-  currentUser: FirebaseUser | null;
+  user: User | null;
   loading: boolean;
-  signup: (email: string, password: string, name: string) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
   error: string | null;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+}
+
+interface FirebaseError {
+  code: string;
+  message: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -29,77 +40,84 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const auth = getAuth(app);
 
-  const signup = async (email: string, password: string, name: string) => {
-    try {
-      setError(null);
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Update profile with display name
-      if (userCredential.user) {
-        await updateProfile(userCredential.user, {
-          displayName: name
-        });
-      }
-    } catch (error: any) {
-      console.error('Signup error:', error);
-      setError(error.message || 'Failed to create an account. Please try again.');
-      throw error;
-    }
-  };
-
-  const login = async (email: string, password: string) => {
-    try {
-      setError(null);
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error: any) {
-      console.error('Login error:', error);
-      setError(error.message || 'Failed to log in. Please check your credentials and try again.');
-      throw error;
-    }
-  };
-
-  const logout = async () => {
-    try {
-      setError(null);
-      await signOut(auth);
-    } catch (error: any) {
-      console.error('Logout error:', error);
-      setError(error.message || 'Failed to log out. Please try again.');
-      throw error;
-    }
-  };
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+        });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => unsubscribe();
   }, [auth]);
 
-  const value: AuthContextType = {
-    currentUser,
+  const handleAuthError = (error: FirebaseError): string => {
+    switch (error.code) {
+      case 'auth/invalid-credential':
+        return AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS;
+      case 'auth/email-already-in-use':
+        return AUTH_ERROR_MESSAGES.EMAIL_IN_USE;
+      case 'auth/weak-password':
+        return AUTH_ERROR_MESSAGES.WEAK_PASSWORD;
+      default:
+        return AUTH_ERROR_MESSAGES.NETWORK_ERROR;
+    }
+  };
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      setError(null);
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      setError(handleAuthError(error as FirebaseError));
+      throw error;
+    }
+  };
+
+  const signUp = async (email: string, password: string) => {
+    try {
+      setError(null);
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      setError(handleAuthError(error as FirebaseError));
+      throw error;
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      setError(null);
+      await firebaseSignOut(auth);
+    } catch (error) {
+      setError(handleAuthError(error as FirebaseError));
+      throw error;
+    }
+  };
+
+  const value = {
+    user,
     loading,
-    signup,
-    login,
-    logout,
-    error
+    error,
+    signIn,
+    signUp,
+    signOut,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

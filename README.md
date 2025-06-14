@@ -1,10 +1,10 @@
-# BlockTix - Blockchain Ticketing Platform
+# ShowRunner - Blockchain Ticketing Platform
 
 A decentralized approach to event ticket management using Polygon blockchain and smart contracts.
 
 ## Project Overview
 
-BlockTix is a modern ticketing platform that leverages blockchain technology to provide secure, transparent, and efficient ticket management for events. Built on the Polygon network, it enables users to purchase tickets as NFTs, eliminating fraud and providing verifiable ownership.
+ShowRunner is a modern ticketing platform that leverages blockchain technology to provide secure, transparent, and efficient ticket management for events. Built on the Polygon network, it enables users to purchase tickets as NFTs, eliminating fraud and providing verifiable ownership.
 
 ## Features
 

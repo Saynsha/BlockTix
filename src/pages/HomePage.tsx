@@ -8,7 +8,7 @@ import CTASection from '../components/home/CTASection';
 const HomePage: React.FC = () => {
   // Update page title on component mount
   useEffect(() => {
-    document.title = 'BlockTix - Decentralized Event Ticketing on Polygon';
+    document.title = 'ShowRunner - Decentralized Event Ticketing on Polygon';
   }, []);
 
   return (
